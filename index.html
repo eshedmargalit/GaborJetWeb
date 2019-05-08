@@ -1,0 +1,706 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Interactive web application for Gabor jet model">
+    <meta name="keywords" content="Gabor,Gabor-jet,Model,Complex,Metric,Stimuli,USC">
+    <title>USC IUL Gabor-Jet Web App</title>
+    <link rel="stylesheet" href="css/foundation.css" />
+      <link rel="stylesheet" href="css/main.css" />
+      <link rel="shortcut icon" href="https://geon.usc.edu/img/favicon.ico" type="image/x-icon" />
+    <script src="js/vendor/modernizr.js"></script>
+      <script src="js/jquery-1.11.3.min.js"></script>
+      <script src="js/fft.js"></script>
+      <script src="js/megapix-image.js"></script>
+      <script src="Chart/Chart.js"></script>
+      <script src="js/exif.js"></script>
+      <script src="js/binaryajax.js"></script>
+      <script src="js/math.min.js"></script>
+      <script src="js/main.js"></script>    
+      <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-77949900-1', 'auto');
+        ga('send', 'pageview');
+      </script>
+  </head>
+  <body>
+    <div id="wrapper">
+    <div class="row">
+      <div class="large-12 columns">
+          <h1>Interactive Gabor-Jet Model Demo</h1>
+          <h3><a href="http://geon.usc.edu">USC Image Understanding Lab</a> | <a href="http://geon.usc.edu/GWTgrid_simple.m">MATLAB Implementation</a></h3>
+	  <h5><a href="http://geon.usc.edu/~biederman/publications/Margalit_et_al_2016_Gabor_Applet_APP.pdf">
+	  	Margalit, E., Biederman, I., Herald, S. B., Yue, X., & von der Malsburg, C. (2016). An applet for the Gabor scaling of the differences between complex stimuli. Attention, Perception, & Psychophysics. 78(8), 2298-2306. doi:10.3758/s13414-016-1191-7.
+	  </a></h5>
+          <h4>Created by <a href="http://www.eshedmargalit.com">Eshed Margalit</a></h4>
+          <h5>With support from <a href="http://geon.usc.edu/~sarah">Sarah Herald, BS</a> and <a href="http://geon.usc.edu/~biederman">Professor Irving Biederman, PhD (Lab Director)</a></h5>
+	<hr/>
+
+        <h2>Introduction</h2>
+          
+        <p>
+            The Gabor-jet model is a tool used to compute the psychophysical dissimilarity between images. This webpage is designed to serve as an interactive guided tour of the model.
+            Interested in learning more? <a href="index.html#info">Jump ahead</a> to the detailed discussion section below.  
+        </p>
+          
+        <p>
+            To test the Gabor-jet model yourself, please upload your own images below. To use our default images instead, please select "Use our defaults" at Step 1.
+        </p>
+
+        <p>
+             Please note that the prediction of psychophysical dissimilarity will be excellent if the stimuli vary only metrically. To the extent that there are qualitative, nonaccidental differences among the stimuli, e.g., one face has glasses and the other doesn’t, or one chair has a straight back and the other a curved back, then the psychophysical predictability would be reduced as the heightened sensitivity to these nonacciddental differences is, presumably, computed in later cortical areas than the early visual stages on which the Gabor-jet model is based.
+        </p>
+      </div>
+      <hr/>
+    </div>
+      
+    <div class="row">
+        <h2>&#9312; Upload Three Images to be Compared</h2>
+        <h4>Details</h4>
+        <p>
+            Upload your images by clicking the "Choose File" buttons below. If you prefer, you can click the "Use our defaults" button below to use our default images instead. Once you finish uploading the images, a button will appear prompting you to grayscale the images-- we need a single value for each pixel. <strong>Uploaded images with non-square dimensions will be resized to 256x256 pixels.</strong>
+        </p>
+        <p>
+            A grid of red dots will appear overlaid on the grayscaled images. These dots denote the locations in the image space from which comparison values will later be extracted. Please press "Select Kernels" to continue to the next step. 
+        </p>
+        <div class="row">
+            <div class="large-4 columns noPadding parentImg">
+                <canvas class="uploadBox" width="256" height="256" id="im1"></canvas>
+                <img class="dotBox" id="dot1" src="img/dots.png">
+            </div>  
+            <div class="large-4 columns noPadding">
+                <canvas class="uploadBox" width="256" height="256" id="im2"></canvas>
+                <img class="dotBox" id="dot2" src="img/dots.png">
+            </div>
+            <div class="large-4 columns noPadding">
+                <canvas class="uploadBox" width="256" height="256" id="im3"></canvas>
+                <img class="dotBox" id="dot3" src="img/dots.png">
+            </div>
+        </div>
+        
+        <!-- Upload button row -->
+        <div class="row" id="buttonRow">
+            <div class="large-4 columns">
+                <input name="upload" type="file" id="fileinput1" accept=".jpg, .png, .jpeg" camera="camera" autocomplete="off" />
+            </div>
+            <div class="large-4 columns">
+                <input name="upload" type="file" id="fileinput2" accept=".jpg, .png, .jpeg" camera="camera" autocomplete="off" />
+            </div>
+            <div class="large-4 columns">
+                <input name="upload" type="file" id="fileinput3" accept=".jpg, .png, .jpeg" camera="camera" autocomplete="off" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="large-4 columns">
+                <button id="defaults">No images? Use our defaults!</button> <br/>
+                <label>Default Image Type</label>
+                <select id = "defaultType">
+                    <option selected="selected">Artificial Faces</option>
+                    <option>Textured Blobs</option>
+                    <option>3D Objects</option>
+                </select>
+            </div>
+            
+            <div class="large-4 columns">
+                <button id="greyButton"> Grayscale the Images </button>
+            </div>
+                
+            <div class="large-4 columns">
+                <button id="continueButton">Select Kernels</button>
+            </div>
+        </div>
+      <hr/>
+    </div>
+     
+    <div class="row" id="settingsRow">
+      <h2>&#9313; Select Kernel Parameters for Graph</h2>
+        <h4>Details</h4>
+        <p>
+            In this implementation of the Gabor-jet model, 40 Gabor wavelet kernels (5 scales x 8 orientations) are generated for each location on the image (marked by red dots in the previous step). Because there are 100 locations, that gives us 4000 kernels per image! To reduce visual clutter in the next step of our demonstration, we ask that you select five of these kernels (referred to as kernels A-E) using the menu below. Don't worry, we'll still use all 4000 kernels for our calculations-- but we'll only show the values obtained using the five you select.
+        </p>
+        <p>
+            For each kernel, please specify the row and column, the orientation of the kernel, and the kernel's receptive field size (diameter in pixels). The fields are pre-populated with kernels clustered near the middle of the image at a variety of scales and orientations, but we encourage you to experiment with different combinations.
+        </p>    
+        <form>
+          <h4 class="kARow">Kernel A</h4>
+          <div class="row">
+            <div class="large-3 columns">
+              <label>Row
+                <select id = "kernel_0_row">
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option>5</option>
+                    <option>6</option>
+                    <option>7</option>
+                    <option selected="selected">8</option>
+                    <option>9</option>
+                    <option>10</option>
+                </select>
+              </label>
+            </div>
+            <div class="large-3 columns">
+              <label>Column
+                <select id = "kernel_0_col">
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option selected="selected">5</option>
+                    <option>6</option>
+                    <option>7</option>
+                    <option>8</option>
+                    <option>9</option>
+                    <option>10</option>
+                </select>
+              </label>
+            </div>
+            <div class="large-3 columns">
+                <label>Orientation (&deg;)
+                    <select id = "kernel_0_orient">
+                        <option>0</option>
+                        <option>22.5</option>
+                        <option>45</option>
+                        <option>67.5</option>
+                        <option>90</option>
+                        <option selected="selected">112.5</option>
+                        <option>135</option>
+                        <option>157.5</option>
+                    </select>
+                </label>
+            </div>
+            <div class="large-3 columns">
+                <label>Scale (px)
+                    <select id = "kernel_0_scale">
+                        <option>16</option>
+                        <option selected="selected">24</option>
+                        <option>32</option>
+                        <option>40</option>
+                        <option>48</option>
+                    </select>
+                </label>
+            </div>
+          </div>
+          
+          <h4 class="kBRow">Kernel B</h4>
+          <div class="row">
+            <div class="large-3 columns">
+              <label>Row
+                <select id = "kernel_1_row">
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option>5</option>
+                    <option selected="selected">6</option>
+                    <option>7</option>
+                    <option>8</option>
+                    <option>9</option>
+                    <option>10</option>
+                </select>
+              </label>
+            </div>
+            <div class="large-3 columns">
+              <label>Column
+                <select id = "kernel_1_col">
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option>5</option>
+                    <option>6</option>
+                    <option selected="selected">7</option>
+                    <option>8</option>
+                    <option>9</option>
+                    <option>10</option>
+                </select>
+              </label>
+            </div>
+            <div class="large-3 columns">
+                <label>Orientation (&deg;)
+                    <select id = "kernel_1_orient">
+                        <option>0</option>
+                        <option>22.5</option>
+                        <option>45</option>
+                        <option selected ="selected">67.5</option>
+                        <option>90</option>
+                        <option>112.5</option>
+                        <option>135</option>
+                        <option>157.5</option>
+                    </select>
+                </label>
+            </div>
+            <div class="large-3 columns">
+                <label>Scale (px)
+                    <select id = "kernel_1_scale">
+                        <option selected ="selected">16</option>
+                        <option>24</option>
+                        <option>32</option>
+                        <option>40</option>
+                        <option>48</option>
+                    </select>
+                </label>
+            </div>
+          </div>
+          
+          <h4 class="kCRow">Kernel C</h4>
+          <div class="row">
+            <div class="large-3 columns">
+              <label>Row
+                <select id = "kernel_2_row">
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option selected="selected">5</option>
+                    <option>6</option>
+                    <option>7</option>
+                    <option>8</option>
+                    <option>9</option>
+                    <option>10</option>
+                </select>
+              </label>
+            </div>
+            <div class="large-3 columns">
+              <label>Column
+                <select id = "kernel_2_col">
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option selected="selected">5</option>
+                    <option>6</option>
+                    <option>7</option>
+                    <option>8</option>
+                    <option>9</option>
+                    <option>10</option>
+                </select>
+              </label>
+            </div>
+            <div class="large-3 columns">
+                <label>Orientation (&deg;)
+                    <select id = "kernel_2_orient">
+                        <option>0</option>
+                        <option>22.5</option>
+                        <option>45</option>
+                        <option>67.5</option>
+                        <option selected ="selected">90</option>
+                        <option>112.5</option>
+                        <option>135</option>
+                        <option>157.5</option>
+                    </select>
+                </label>
+            </div>
+            <div class="large-3 columns">
+                <label>Scale (px)
+                    <select id = "kernel_2_scale">
+                        <option>16</option>
+                        <option>24</option>
+                        <option selected="selected">32</option>
+                        <option>40</option>
+                        <option>48</option>
+                    </select>
+                </label>
+            </div>
+          </div>
+          
+          <h4 class="kDRow">Kernel D</h4>
+          <div class="row">
+            <div class="large-3 columns">
+              <label>Row
+                <select id = "kernel_3_row">
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option>5</option>
+                    <option selected="selected">6</option>
+                    <option>7</option>
+                    <option>8</option>
+                    <option>9</option>
+                    <option>10</option>
+                </select>
+              </label>
+            </div>
+            <div class="large-3 columns">
+              <label>Column
+                <select id = "kernel_3_col">
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option selected ="selected">4</option>
+                    <option>5</option>
+                    <option>6</option>
+                    <option>7</option>
+                    <option>8</option>
+                    <option>9</option>
+                    <option>10</option>
+                </select>
+              </label>
+            </div>
+            <div class="large-3 columns">
+                <label>Orientation (&deg;)
+                    <select id = "kernel_3_orient">
+                        <option>0</option>
+                        <option selected="selected">22.5</option>
+                        <option>45</option>
+                        <option>67.5</option>
+                        <option>90</option>
+                        <option>112.5</option>
+                        <option>135</option>
+                        <option>157.5</option>
+                    </select>
+                </label>
+            </div>
+            <div class="large-3 columns">
+                <label>Scale (px)
+                    <select id = "kernel_3_scale">
+                        <option>16</option>
+                        <option>24</option>
+                        <option selected ="selected">32</option>
+                        <option>40</option>
+                        <option>48</option>
+                    </select>
+                </label>
+            </div>
+          </div>
+          <h4 class="kERow">Kernel E</h4>
+          <div class="row">
+            <div class="large-3 columns">
+              <label>Row
+                <select id = "kernel_4_row">
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option selected="selected">4</option>
+                    <option>5</option>
+                    <option>6</option>
+                    <option>7</option>
+                    <option>8</option>
+                    <option>9</option>
+                    <option>10</option>
+                </select>
+              </label>
+            </div>
+            <div class="large-3 columns">
+              <label>Column
+                <select id = "kernel_4_col">
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option>5</option>
+                    <option>6</option>
+                    <option selected="selected">7</option>
+                    <option>8</option>
+                    <option>9</option>
+                    <option>10</option>
+                </select>
+              </label>
+            </div>
+            <div class="large-3 columns">
+                <label>Orientation (&deg;)
+                    <select id = "kernel_4_orient">
+                        <option>0</option>
+                        <option>22.5</option>
+                        <option>45</option>
+                        <option>67.5</option>
+                        <option selected="selected">90</option>
+                        <option>112.5</option>
+                        <option>135</option>
+                        <option>157.5</option>
+                    </select>
+                </label>
+            </div>
+            <div class="large-3 columns">
+                <label>Scale (px)
+                    <select id = "kernel_4_scale">
+                        <option selected="selected">16</option>
+                        <option>24</option>
+                        <option>32</option>
+                        <option>40</option>
+                        <option>48</option>
+                    </select>
+                </label>
+            </div>
+          </div>
+        </form>
+        <button id="goToChartButton">Show Kernels</button>
+        <hr/>
+    </div>   
+      
+    <div class="row" id="graphRow">
+        <h2>&#9314; Compute Jet Magnitudes</h2>
+        <h4>Details</h4>
+        <p>
+            Below are the three uploaded images with the Gabor patches you selected superimposed over the images.
+        </p>
+        <div class="large-4 columns noPadding parentImg">
+            <canvas class="uploadBox" width="256" height="256" id="k1"></canvas>
+        </div>  
+        <div class="large-4 columns noPadding">
+            <canvas class="uploadBox" width="256" height="256" id="k2"></canvas>
+        </div>
+        <div class="large-4 columns noPadding">
+            <canvas class="uploadBox" width="256" height="256" id="k3"></canvas>
+        </div>
+        <p>
+            Next, we need to do the kernel convolution and extract values at the 100 red-dot grid locations. Please click the buttons in the order that they appear. With each button press, the corresponding magnitude for the five kernels selected above will appear in the bar graph below. When you finish, the compute button will appear, allowing you to generate the dissimilarity rankings!
+        </p>
+        <p>
+            The units along the ordinate access are arbitrary, and kernel magnitudes should be considered in relation to each other. For example, if two values for a given kernel are nearly identical, it is likely that the images had similar gradients at that position, scale and orientation.
+        </p>
+        <hr/>
+        <div class="row">
+            <div class="large-4 columns">
+                    <button class="legend1" id="b_real1">First Image</button>
+            </div>
+
+            <div class="large-4 columns">
+                    <button class="legend2" id="b_real2">Second Image</button>
+            </div>
+
+            <div class="large-4 columns">
+                    <button class="legend3" id="b_real3">Third Image</button>
+            </div>
+        </div>
+        
+        <div class="row">
+            
+            <div class="large-12 columns">
+               <div class="row">
+                    <h3 class="centered">Kernel Response Magnitude for the Five Selected Kernels</h3>
+                </div>
+                <canvas id="magChart" class="chartCanvas"></canvas>
+                <h4 class="centered">Kernels</h4>
+            </div>
+            
+        </div>
+
+        <hr/>
+
+        <div class="row" id="phaseRow">
+            <div class="large-12 columns">
+                
+                <!--Table of phase values-->
+                <button id="phaseButton">Compute Phase Values (optional)</button>
+                <div class="row">
+                    
+                    <div class="large-6 large-offset-6 columns">
+                        <div id="phaseVals">
+                        <h3>Kernel Phase (radians)</h3>
+                          <table>
+                          <thead>
+                            <tr>
+                              <th width="200">Kernel</th>
+                              <th width="150">Image 1</th>
+                              <th width="150">Image 2</th>
+                              <th width="150">Image 3</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td>Kernel A</td>
+                              <td id="1_1">0</td>
+                              <td id="1_2">0</td>
+                              <td id="1_3">0</td>
+                            </tr>
+                            <tr>
+                              <td>Kernel B</td>
+                              <td id="2_1">0</td>
+                              <td id="2_2">0</td>
+                              <td id="2_3">0</td>
+                            </tr>
+                            <tr>
+                              <td>Kernel C</td>
+                              <td id="3_1">0</td>
+                              <td id="3_2">0</td>
+                              <td id="3_3">0</td>
+                            </tr>
+                              <tr>
+                              <td>Kernel D</td>
+                              <td id="4_1">0</td>
+                              <td id="4_2">0</td>
+                              <td id="4_3">0</td>
+                            </tr>
+                              <tr>
+                              <td>Kernel E</td>
+                              <td id="5_1">0</td>
+                              <td id="5_2">0</td>
+                              <td id="5_3">0</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr/>
+        <div class="row">
+            <div class="large-12 column">
+                <button id="compute">Compute Dissimilarity Ranking</button>
+            </div>
+        </div>
+        
+        <hr/>
+    </div>
+      
+    <div class="row" id="scoreRow">
+        <h2>&#9315;Dissimilarity Ranking</h2>
+        <h4>Details</h4>
+        <p>
+            All possible pairs of two images were generated from the three images provided. For each image, we calculated a vector with 4000 values, one for each kernel. The Euclidean distance between two vectors is taken as the perceptual distance between images. The most dissimilar pair is presented first, followed by pairs of decreasing dissimilarity. To start over with new images, please click the button provided or reload this page in your browser.
+        </p>
+        
+        <div class="row"> <!--PAIR 1-->
+            <div class="large-4 columns">
+                <canvas class="imageBox" width="256" height="256" id="pair1im1"></canvas>
+            </div>
+            <div class="large-4 columns">
+                <canvas class="imageBox" width="256" height="256" id="pair1im2"></canvas>
+            </div>
+            <div class="large-4 columns scoreDisplay" id="score1">
+                0
+            </div>
+        </div>
+        
+        <div class="row" style="margin-top:25px;"> <!--PAIR 2-->
+            <div class="large-4 columns">
+                <canvas class="imageBox" width="256" height="256" id="pair2im1"></canvas>
+            </div>
+            <div class="large-4 columns">
+                <canvas class="imageBox" width="256" height="256" id="pair2im2"></canvas>
+            </div>
+            <div class="large-4 columns scoreDisplay" id="score2">
+                0
+            </div>
+        </div>
+        
+        <div class="row" style="margin-top:25px;"> <!--PAIR 3-->
+            <div class="large-4 columns">
+                <canvas class="imageBox" width="256" height="256" id="pair3im1"></canvas>
+            </div>
+            <div class="large-4 columns">
+                <canvas class="imageBox" width="256" height="256" id="pair3im2"></canvas>
+            </div>
+            <div class="large-4 columns scoreDisplay" id="score3">
+                0
+            </div>
+        </div>
+		<br/>
+		<button id="restartButton">Start over?</button>
+           <hr/>
+    </div>
+        
+    <!--MORE INFO-->
+    <div class="row" id="info">
+        <h2>Additional Information</h2>
+        <h4>Motivation</h4>
+            <p>
+              Imagine two familiar faces-- they could be friends, family or celebrities! Got it? Now think, how similar are those faces? Can you quantify that similarity? 
+            </p>
+            <p>
+              One issue plaguing research on face perception has been the lack of a quantitative metric to describe the difference in perceived faces. Our implementation of the Gabor-jet model <a href="http://www.vision.caltech.edu/CNS179/papers/Lades93.pdf">(Lades et al., 1993)</a> allows us to compute a single value to describe how dissimilar two faces really are. In <a href="http://www.sciencedirect.com/science/article/pii/S0042698911004342">a recent study (Yue et al., 2012)</a>, the Image Understanding Lab found that these dissimilarity values explain over 92% of the variance in human responses on a face match-to-sample discrimination task.
+            </p>
+            <h4>Background</h4>
+
+            <div class="row">
+                <div class="large-12 columns">
+                    <p>
+                        The Gabor-jet model <a href="http://ieeexplore.ieee.org/xpl/articleDetails.jsp?arnumber=210173">(Lades et al., 1993)</a> is designed to capture the response properties of simple cells in V1 hypercolumns. The model computes a single value that represents the similarity of two images with respect to V1 simple and complex cell filtering. These values have been shown to almost perfectly predict psychophysical similarity in discriminating metrically varying complex visual stimuli such as faces, blobs (resembling teeth), and simple volumes (geons) (<a href="http://www.sciencedirect.com/science/article/pii/S0042698911004342">Yue et al., 2012</a>; <a href="http://www.sciencedirect.com/science/article/pii/S0042698912000934">Amir et al., 2012</a>). Under the assumption that V1 captures metric variation, the sensitivity to the “qualitative” differences of complex stimuli, such as NAPs vs. MPs, or differences in facial identity vs. expression (that are presumably rendered explicit in later stages) can be more rigorously evaluated. Here we introduce a new tool to conveniently explain and test this model in what is designed to be an engaging, interactive context. The tool can thus serve both methodological and didactic functions.
+                    </p>
+                </div>
+             </div>
+            <div class="row">
+                <div class="large-8 columns">
+                    <p>
+                        Gabor-like filters develop as part of the linear decomposition of natural images (<a href="http://www.nature.com/nature/journal/v381/n6583/abs/381607a0.html">Olshausen and Field, 1996</a>) so the Gabor-like filtering characteristic of V1 simple cells is not unexpected. These basis sets emerge in the first layer of leading convolution neural networks for image recognition (e.g., <a href="http://www.cs.toronto.edu/~fritz/absps/imagenet.pdf">Krizhevsky et al., 2012</a>) or are simply assumed as in the <a href="http://cvcl.mit.edu/Papers/IJCV01-Oliva-Torralba.pdf">GIST model of Oliva and Torralba (2001)</a>, that adopts the use of multi-scale, multi-orientation Gabor filters to create a sparse description of image locations in much the same way that each jet in the Gabor-jet model is composed of a set of Gabor filters at different scales and orientations which share a common center in the image space. Similarly, the first layer of HMAX (<a href="http://cbcl.mit.edu/publications/ps/nn99.pdf">Riesenhuber and Poggio, 1999</a>) convolves image pixels with oriented Gabor filters before pooling responses (and then repeating those operations). So although the Gabor-jet model was developed almost a quarter of a century ago, its offering of an explicit measure of V1-based image similarity is still relevant given the widespread incorporation of Gabor filtering as the input stage in contemporary neurocomputational models of vision. 
+                    </p>
+                    <p>
+                        Our implementation of the Gabor-jet model follows that of Lades et al. in which each Gabor “jet” is modeled as a set of Gabor wavelet kernels at 5 scales and 8 orientations, with the center of their receptive fields tuned to the same point in the visual field (Figure 1). We employ a 10x10 square grid—and therefore 100 jets—to mark the positions in the image space from which kernel convolution values are extracted.
+                    </p>
+                </div>
+
+                <div class="large-4 columns">
+                    <img src="img/dotsOverlay.png" alt="Demonstration of dots overlaid on face"/>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="large-8 columns">
+                    <p>
+                        Given kernels of sufficiently large scale and a grid of sufficient density, some kernels' receptive fields (RFs) will overlap, as shown to the right. <a href="http://jov.arvojournals.org/article.aspx?articleid=2194062">An Image Understanding Lab study (Xu et al., 2014)</a> demonstrated that these large RFs account for the face configural effect "in which a difference in a single part appears more distinct in the context of a face than it does by itself." Example image used with permission from Xu et al. 
+                    </p>
+                </div>
+
+                <div class="large-4 columns">
+                    <img src="img/largeRFs.png" id="largeRFImage" alt="Demonstration of large receptive field overlap"/>
+                </div>
+            </div>
+
+            <p>
+                After performing a 2D Fourier transform on the image, we multiply the Fourier-transformed image pixel-wise with these Gabor wavelet kernels (also in the Fourier domain) before transforming the image back out of the frequency domain. Next, we extract the magnitude and phase of the resultant image at given positions in the visual field-- in this case, we use the 10x10 grid to mark the positions from which values are extracted. We concatenate these two values for each kernel in the jet, yielding a 100x80 matrix of values for each image, which can then be collapsed into a vector of 8000 values. We consider the Euclidean distance between any two output vectors as the perceptual distance between those two face images which produced the vectors, because the Euclidean distance has been shown to more closely reflect human behavior than other metrics, such as correlation (Yue et al., 2012). A MATLAB implementation of this model with increased functionality can be found <a href="http://geon.usc.edu/GWTgrid_simple.m">here</a>.
+            </p>    
+	    <p>If you use this web app in your own work, please cite as <a href="http://geon.usc.edu/~biederman/publications/Margalit_et_al_2016_Gabor_Applet_APP.pdf"> Margalit, E., Biederman, I., Herald, S. B., Yue, X., & von der Malsburg, C. (2016). An applet for the Gabor scaling of the differences between complex stimuli. Attention, Perception, & Psychophysics. 78(8), 2298-2306. doi:10.3758/s13414-016-1191-7.</a></p>
+    </div>
+    </div>
+    <div class="row" id="footerWrapper">
+	<footer>
+		<h5>Contact</h5>
+		<p>For questions or suggestions, please feel free to contact <a href="http://geon.usc.edu/~eshed">Eshed Margalit</a> or <a href="http://geon.usc.edu/~sarah">Sarah Herald</a>. Email addresses can be found at their respective web pages.<br/>
+        Lab Director: <a href="http://geon.usc.edu/~biederman">Professor Irving Biederman</a></p>
+
+		<h5>Acknowledgements</h5>
+		<p>Our 2-D FFT code utilizes a 1-D FFT implementation by Nayuki found <a href="https://www.nayuki.io/page/free-small-fft-in-multiple-languages">here</a>.</p>
+		
+        <p>Code for resizing images, along with a fix for iPhone camera images, uses an image rendering library by Shinichi Tomita, found <a href="https://github.com/stomita/ios-imagefile-megapixel">here</a>.</p>
+        
+        <p>Charts in Step 4 created with Chart.js, found <a href="http://www.chartjs.org/">here</a>.</p>
+        
+        <p><a href="http://mathjs.org/">Math.js</a> was used in some computations.</p>
+        
+        <h5>References</h5>
+        <p>
+            Amir, O., Biederman, I., & Hayworth, K.J. (2012). Sensitivity to nonaccidental properties across various shape dimensions. <em>Vision Research</em>. 62 ,35-43. doi: 10.1016/j.visres.2012.03.020 <a href="http://www.sciencedirect.com/science/article/pii/S0042698911004342">Link</a>
+        </p>
+        <p>
+            Krizhevsky, A., Sutskever, I., Hinton, G.E. (2012). ImageNet Classification with Deep Convolutional Neural Networks. 
+            <em>Advances in neural information processing systems</em>. 1097-1105. <a href="http://www.cs.toronto.edu/~fritz/absps/imagenet.pdf">Link</a>
+        </p>
+        <p>
+            Lades, M., Vorbruggen, J.C., Buhmann, J., Lange, J., von der Malsburg, C., Wurtz, R.P., et al. (1993). Distortion invariant object recognition in the dynamic link architecture. <em>IEEE Transactions on Computers</em>, 42 (3), 300-311. doi: 10.1109/12.210173 <a href="http://ieeexplore.ieee.org/xpl/articleDetails.jsp?arnumber=210173">Link</a>
+        </p>
+        <p>
+            Oliva, A., & Torralba, A. (2001). Modeling the Shape of a Scene: A Holistic Representation of the Spatial Envelope. <em>International Journal of Computer Vision</em>. 42(3), 145-171. <a href="http://cvcl.mit.edu/Papers/IJCV01-Oliva-Torralba.pdf">Link</a>
+        </p>
+        <p>
+            Olshausen, B.A., & Field, D.J. (1996). Emergence of simple-cell receptive field properties by learning a sparse code for natural images. <em>Nature</em>, 381, 607-609. <a href="http://www.nature.com/nature/journal/v381/n6583/abs/381607a0.html">Link</a>
+        </p>
+        <p>
+            Riesenhuber, M., & Poggio, T. (1999). Hierarchical models of object recognition in cortex. <em>Nature Neuroscience</em>. 2(11), 1019-1025. <a href="http://cbcl.mit.edu/publications/ps/nn99.pdf">Link</a>
+        </p>
+        <p>
+            Xu, X., Biederman, I., & Shah, M. S. (2014). A neurocomputational account of the face configural effect. <em>Journal of Vision</em>, 14, 1-9. <a href="http://jov.arvojournals.org/article.aspx?articleid=2194062">Link</a>
+        </p>
+        <p>
+            Yue, X., Biederman, I., Mangini, M. C., von der Malsburg, C., & Amir, O. (2012). Predicting the Psychophysical Similarity of Faces and Non-Face Complex Shapes by Image-Based Measures. <em>Vision Research</em>. 55,41-46. doi: 10.1016/j.visres.2011.12.012 <a href="http://dx.doi.org/10.1016/j.visres.2011.12.012">Link</a>
+        </p>
+        
+
+	</footer>
+    </div>
+    
+    <script src="js/vendor/jquery.js"></script>
+    <script src="js/foundation.min.js"></script>
+    <script>
+      $(document).foundation();
+    </script>
+  </body>
+</html>

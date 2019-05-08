@@ -1,0 +1,238 @@
+.imageBox{
+    border: 2px solid black;
+    width: 256px;
+    height: 256px;
+    background-color: #bcbcbc;
+    font-size: 15pt;
+    box-sizing: content-box;
+    margin-top: 25px;
+    z-index: 1;
+}
+
+.uploadBox{
+    border: 2px solid black;
+/*
+    width: 256px;
+    height: 256px;
+*/
+    box-sizing: content-box;
+    background-color: #bcbcbc;
+    font-size: 15pt;
+    margin-top: 25px;
+}
+
+#buttonRow {
+    margin-top:25px;
+}
+
+#grayscalerow {
+    display:none;
+}
+
+#fftRow{
+    display: none;
+}
+
+#scoreRow{
+    display:none;
+}
+#b_real2 {
+    display:none;
+}
+
+#b_imag1 {
+    display:none;
+}
+
+#b_imag2 {
+    display:none;
+}
+
+#b_imag3 {
+    display:none;
+}
+
+#b_real3{
+    display: none;
+}
+
+#compute {
+    display:none;
+}
+
+#scoreRowInner {
+    font-size:40pt;
+    font-weight:700;
+    margin-left:500px;
+}
+
+#settingsRow{
+    display: none;
+}
+
+#greyButton {
+    display:none;
+}
+
+#continueButton{
+    display:none;
+}
+
+#graphRow {
+    display: none;
+}
+
+.scoreDisplay{
+    font-size:30pt;
+    padding:50px;
+}
+
+.color1 {
+    color: rgba(248, 136, 136,1);
+}
+
+.color2{
+    color: rgba(151,187,205,1);
+}
+
+.color3{
+    color: rgba(193,151,205,1);
+}
+
+footer h5{
+    text-decoration: underline;
+}
+.chartCanvas {
+    width:100%;
+}
+
+.dotBox {
+    z-index: 2;
+    position:absolute;
+    bottom: 10px;
+    left: 0;
+    /*border: 2px solid black;*/
+    width: 256px;
+    height: 256px;
+    box-sizing: content-box;
+    font-size: 15pt;
+    margin-top: 25px;
+}
+
+#dot1{
+    display:none;
+}
+
+#dot2{
+    display:none;
+}
+
+#dot3{
+    display:none;
+}
+
+.grayBox {
+    z-index: 2;
+    position:absolute;
+    bottom: 0;
+    left: 0;
+    border: 2px solid black;
+/*
+    width: 256px;
+    height: 256px;
+*/
+    box-sizing: content-box;
+    font-size: 15pt;
+    margin-top: 25px;
+}
+
+#gray1{
+    display:none;
+}
+
+#gray2{
+    display:none;
+}
+
+#gray3{
+    display:none;
+}
+
+.noPadding {
+    padding: 0;
+}
+.centered {
+    text-align: center;
+}
+
+.legend1 {
+    background-color: #D5C67A;
+    color:white;
+    margin-left:25%;
+}
+
+.legend2{
+    background-color: #005377;
+    color:white;
+    margin-left:25%;
+}
+
+.legend3{
+    background-color: #06A77D;
+    color:white;
+    margin-left:25%;
+}
+
+#footerWrapper{
+    min-width: 100%;
+    background-color:#5f5f5f;
+}
+
+footer{
+    max-width: 70.5em;
+    margin:0 auto 0 auto;
+    padding:80px 0 40px 0;
+    color: white;
+}
+
+footer a{
+    color: #38ceff ;
+}
+
+footer h5{
+    color:white;
+}
+
+
+#wrapper {
+    padding:20px;
+}
+
+.kARow {
+    background-color: rgba(152,89,132,0.8);
+    padding:2px 0px 2px 10px;
+}
+.kBRow {
+    background-color: #119D65;
+    padding:2px 0px 2px 10px;
+}
+.kCRow {
+    background-color: #E8CD15;
+    padding:2px 0px 2px 10px;
+}
+.kDRow {
+    background-color: #FB6107;
+    padding:2px 0px 2px 10px;
+}
+.kERow {
+    background-color: #0BBFCF   ;
+    padding:2px 0px 2px 10px;
+}
+
+#phaseRow {
+    display:none;
+}
+
+#phaseVals {
+    display:none;
+}
